@@ -4,6 +4,8 @@ from collections import defaultdict
 from datetime import datetime
 from os import environ
 from dotenv import load_dotenv
+import matplotlib.pyplot as plt
+import numpy as np
 
 load_dotenv()
 
@@ -59,12 +61,44 @@ def group_prs_by_month(prs):
         grouped[month_key].append(pr)
     return grouped
 
+def calculate_monthly_pull_requests(grouped_prs):
+    counts = {}
+    for month, prs in grouped_prs.items():
+        counts[month] = len(prs)
+    return counts
+
+def plot_pull_requests(merged_counts, open_counts, img_filepath="pull-requests.png"):
+    all_months = sorted(set(merged_counts.keys()) | set(open_counts.keys()),
+                        key=lambda m: datetime.strptime(m, "%Y-%m"))
+
+    merged_vals = [merged_counts.get(month, 0) for month in all_months]
+    open_vals = [open_counts.get(month, 0) for month in all_months]
+
+    x = np.arange(len(all_months))
+    width = 0.35
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(x - width/2, merged_vals, width, label='Merged', color='green')
+    ax.bar(x + width/2, open_vals, width, label='Open', color='gray')
+
+    ax.set_ylabel('Count')
+    ax.set_title('Monthly Pull Requests')
+    ax.set_xticks(x)
+    ax.set_xticklabels(all_months, rotation=45)
+    ax.legend()
+
+    fig.tight_layout()
+    plt.savefig(img_filepath, dpi=300)
+    print(f"Graph saved as {img_filepath}")
+
 def markdown_report(merged_groups, open_groups, md_filepath="README.md"):
     all_months = set(merged_groups.keys()) | set(open_groups.keys())
     sorted_months = sorted(
         all_months, key=lambda m: datetime.strptime(m, "%Y-%m"), reverse=True
     )
     report_lines = []
+
+    report_lines.append("![Pull Requests](pull-requests.png)")
 
     for month in sorted_months:
         report_lines.append(f"\n## {month}\n")
@@ -130,6 +164,11 @@ def main():
 
     print_monthly_reports(merged_groups, open_groups)
     markdown_report(merged_groups, open_groups)
+
+    merged_counts = calculate_monthly_pull_requests(merged_groups)
+    open_counts = calculate_monthly_pull_requests(open_groups)
+
+    plot_pull_requests(merged_counts, open_counts)
 
 if __name__ == "__main__":
     main()
