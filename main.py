@@ -10,21 +10,19 @@ import numpy as np
 load_dotenv()
 
 OWNER = "daytonaio"
-REPO = "docs"
+REPOS = ["docs", "enterprise-docs"]
 
-def fetch_pull_requests(token, state, date_field, username, per_page=100):
+def fetch_pull_requests(token, repo, state, date_field, username, per_page=100):
     headers = {"Authorization": f"token {token}"}
     prs_list = []
     page = 1
 
     while True:
-        url = f"https://api.github.com/repos/{OWNER}/{REPO}/pulls"
+        url = f"https://api.github.com/repos/{OWNER}/{repo}/pulls"
         params = {"state": state, "per_page": per_page, "page": page}
         response = requests.get(url, headers=headers, params=params)
         if response.status_code != 200:
-            print(
-                f"Failed to fetch pull requests. Status code: {response.status_code}"
-            )
+            print(f"Failed to fetch pull requests for {repo}. Status code: {response.status_code}")
             sys.exit(1)
 
         prs = response.json()
@@ -38,11 +36,11 @@ def fetch_pull_requests(token, state, date_field, username, per_page=100):
             if state == "closed" and date_field == "merged_at":
                 if pr.get("merged_at"):
                     prs_list.append(
-                        (pr.get("number"), pr.get("title"), pr.get("merged_at"))
+                        (repo, pr.get("number"), pr.get("title"), pr.get("merged_at"))
                     )
             else:
                 prs_list.append(
-                    (pr.get("number"), pr.get("title"), pr.get(date_field))
+                    (repo, pr.get("number"), pr.get("title"), pr.get(date_field))
                 )
         page += 1
 
@@ -51,7 +49,7 @@ def fetch_pull_requests(token, state, date_field, username, per_page=100):
 def group_prs_by_month(prs):
     grouped = defaultdict(list)
     for pr in prs:
-        pr_date = pr[2]
+        pr_date = pr[3]
         try:
             dt = datetime.fromisoformat(pr_date.rstrip("Z"))
         except Exception as e:
@@ -67,22 +65,30 @@ def calculate_monthly_pull_requests(grouped_prs):
         counts[month] = len(prs)
     return counts
 
-def plot_pull_requests(merged_counts, open_counts, img_filepath="pull-requests.png"):
-    all_months = sorted(set(merged_counts.keys()) | set(open_counts.keys()),
-                        key=lambda m: datetime.strptime(m, "%Y-%m"))
+def plot_combined_pull_requests(merged_counts_oss, open_counts_oss, 
+                                merged_counts_ent, open_counts_ent, img_filepath="pull-requests.png"):
+    all_months = sorted(
+        set(merged_counts_oss.keys()) | set(open_counts_oss.keys()) |
+        set(merged_counts_ent.keys()) | set(open_counts_ent.keys()),
+        key=lambda m: datetime.strptime(m, "%Y-%m")
+    )
 
-    merged_vals = [merged_counts.get(month, 0) for month in all_months]
-    open_vals = [open_counts.get(month, 0) for month in all_months]
+    merged_vals_oss = [merged_counts_oss.get(month, 0) for month in all_months]
+    open_vals_oss = [open_counts_oss.get(month, 0) for month in all_months]
+    merged_vals_ent = [merged_counts_ent.get(month, 0) for month in all_months]
+    open_vals_ent = [open_counts_ent.get(month, 0) for month in all_months]
 
     x = np.arange(len(all_months))
-    width = 0.35
+    width = 0.2
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.bar(x - width/2, merged_vals, width, label='Merged', color='green')
-    ax.bar(x + width/2, open_vals, width, label='Open', color='gray')
+    fig, ax = plt.subplots(figsize=(12, 8))
+    ax.bar(x - width * 1.5, merged_vals_oss, width, label='OSS Merged', color='darkgreen')
+    ax.bar(x - width / 2, open_vals_oss, width, label='OSS Open', color='lightgreen')
+    ax.bar(x + width / 2, merged_vals_ent, width, label='Enterprise Merged', color='darkblue')
+    ax.bar(x + width * 1.5, open_vals_ent, width, label='Enterprise Open', color='lightblue')
 
     ax.set_ylabel('Count')
-    ax.set_title('Monthly Pull Requests')
+    ax.set_title('Monthly Pull Requests (OSS vs Enterprise)')
     ax.set_xticks(x)
     ax.set_xticklabels(all_months, rotation=45)
     ax.legend()
@@ -91,8 +97,10 @@ def plot_pull_requests(merged_counts, open_counts, img_filepath="pull-requests.p
     plt.savefig(img_filepath, dpi=300)
     print(f"Graph saved as {img_filepath}")
 
-def markdown_report(merged_groups, open_groups, md_filepath="README.md"):
-    all_months = set(merged_groups.keys()) | set(open_groups.keys())
+def markdown_report(merged_groups_oss, open_groups_oss, 
+                    merged_groups_ent, open_groups_ent, md_filepath="README.md"):
+    all_months = set(merged_groups_oss.keys()) | set(open_groups_oss.keys()) | \
+                 set(merged_groups_ent.keys()) | set(open_groups_ent.keys())
     sorted_months = sorted(
         all_months, key=lambda m: datetime.strptime(m, "%Y-%m"), reverse=True
     )
@@ -103,46 +111,37 @@ def markdown_report(merged_groups, open_groups, md_filepath="README.md"):
     for month in sorted_months:
         report_lines.append(f"\n## {month}\n")
 
-        if month in merged_groups:
-            report_lines.append("### Merged Pull Requests\n")
-            merged_sorted = sorted(merged_groups[month], key=lambda pr: pr[2])
-            for pr in merged_sorted:
+        if month in merged_groups_oss:
+            report_lines.append("### OSS Merged Pull Requests\n")
+            for pr in sorted(merged_groups_oss[month], key=lambda pr: pr[3]):
                 report_lines.append(
-                    f"- [#{pr[0]}](https://github.com/{OWNER}/{REPO}/pull/{pr[0]}): {pr[1]} (merged at: {pr[2]})"
+                    f"- [#{pr[1]}](https://github.com/{OWNER}/{pr[0]}/pull/{pr[1]}): {pr[2]} (merged at: {pr[3]})"
                 )
 
-        if month in open_groups:
-            report_lines.append("\n### Open Pull Requests\n")
-            open_sorted = sorted(open_groups[month], key=lambda pr: pr[2])
-            for pr in open_sorted:
+        if month in open_groups_oss:
+            report_lines.append("\n### OSS Open Pull Requests\n")
+            for pr in sorted(open_groups_oss[month], key=lambda pr: pr[3]):
                 report_lines.append(
-                    f"- [#{pr[0]}](https://github.com/{OWNER}/{REPO}/pull/{pr[0]}): {pr[1]} (created at: {pr[2]})"
+                    f"- [#{pr[1]}](https://github.com/{OWNER}/{pr[0]}/pull/{pr[1]}): {pr[2]} (created at: {pr[3]})"
+                )
+
+        if month in merged_groups_ent:
+            report_lines.append("\n### Enterprise Merged Pull Requests\n")
+            for pr in sorted(merged_groups_ent[month], key=lambda pr: pr[3]):
+                report_lines.append(
+                    f"- [#{pr[1]}](https://github.com/{OWNER}/{pr[0]}/pull/{pr[1]}): {pr[2]} (merged at: {pr[3]})"
+                )
+
+        if month in open_groups_ent:
+            report_lines.append("\n### Enterprise Open Pull Requests\n")
+            for pr in sorted(open_groups_ent[month], key=lambda pr: pr[3]):
+                report_lines.append(
+                    f"- [#{pr[1]}](https://github.com/{OWNER}/{pr[0]}/pull/{pr[1]}): {pr[2]} (created at: {pr[3]})"
                 )
 
     with open(md_filepath, "w", encoding="utf-8") as md_file:
         md_file.write("\n".join(report_lines))
     print(f"Markdown report written to {md_filepath}")
-
-def print_monthly_reports(merged_groups, open_groups):
-    all_months = set(merged_groups.keys()) | set(open_groups.keys())
-    sorted_months = sorted(
-        all_months, key=lambda m: datetime.strptime(m, "%Y-%m"), reverse=True
-    )
-
-    for month in sorted_months:
-        print(f"\n=== {month} ===")
-
-        if month in merged_groups:
-            print("Merged Pull Requests")
-            merged_sorted = sorted(merged_groups[month], key=lambda pr: pr[2])
-            for pr in merged_sorted:
-                print(f"(#{pr[0]}) {pr[1]} (merged at: {pr[2]})")
-
-        if month in open_groups:
-            print("Open Pull Requests")
-            open_sorted = sorted(open_groups[month], key=lambda pr: pr[2])
-            for pr in open_sorted:
-                print(f" #{pr[0]}: {pr[1]} (created at: {pr[2]})")
 
 def main():
     token = environ.get("GITHUB_TOKEN")
@@ -152,23 +151,35 @@ def main():
         print("Missing GITHUB_TOKEN and/or GITHUB_USERNAME in environment.")
         sys.exit(1)
 
-    merged_prs = fetch_pull_requests(
-        token, state="closed", date_field="merged_at", username=username
-    )
-    open_prs = fetch_pull_requests(
-        token, state="open", date_field="created_at", username=username
-    )
+    merged_prs_oss = []
+    open_prs_oss = []
+    merged_prs_ent = []
+    open_prs_ent = []
 
-    merged_groups = group_prs_by_month(merged_prs)
-    open_groups = group_prs_by_month(open_prs)
+    for repo in REPOS:
+        merged_prs = fetch_pull_requests(token, repo, state="closed", date_field="merged_at", username=username)
+        open_prs = fetch_pull_requests(token, repo, state="open", date_field="created_at", username=username)
 
-    print_monthly_reports(merged_groups, open_groups)
-    markdown_report(merged_groups, open_groups)
+        if repo == "docs":
+            merged_prs_oss.extend(merged_prs)
+            open_prs_oss.extend(open_prs)
+        elif repo == "enterprise-docs":
+            merged_prs_ent.extend(merged_prs)
+            open_prs_ent.extend(open_prs)
 
-    merged_counts = calculate_monthly_pull_requests(merged_groups)
-    open_counts = calculate_monthly_pull_requests(open_groups)
+    merged_groups_oss = group_prs_by_month(merged_prs_oss)
+    open_groups_oss = group_prs_by_month(open_prs_oss)
+    merged_groups_ent = group_prs_by_month(merged_prs_ent)
+    open_groups_ent = group_prs_by_month(open_prs_ent)
 
-    plot_pull_requests(merged_counts, open_counts)
+    markdown_report(merged_groups_oss, open_groups_oss, merged_groups_ent, open_groups_ent)
+
+    merged_counts_oss = calculate_monthly_pull_requests(merged_groups_oss)
+    open_counts_oss = calculate_monthly_pull_requests(open_groups_oss)
+    merged_counts_ent = calculate_monthly_pull_requests(merged_groups_ent)
+    open_counts_ent = calculate_monthly_pull_requests(open_groups_ent)
+
+    plot_combined_pull_requests(merged_counts_oss, open_counts_oss, merged_counts_ent, open_counts_ent)
 
 if __name__ == "__main__":
     main()
