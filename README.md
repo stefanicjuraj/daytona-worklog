@@ -15,6 +15,7 @@
 - [#214](https://github.com/daytonaio/docs/pull/214): docs: add architecture diagram (merged at: 2025-01-13T16:51:04Z)
 - [#205](https://github.com/daytonaio/docs/pull/205): docs: add workspace toolbox (merged at: 2025-01-14T07:44:16Z)
 - [#227](https://github.com/daytonaio/docs/pull/227): docs: refactor sdk code snippets & content (merged at: 2025-01-14T07:47:26Z)
+- [#207](https://github.com/daytonaio/docs/pull/207): docs: refactor workspaces, projects, and targets (merged at: 2025-01-24T09:51:40Z)
 
 ## 2024-12
 
@@ -22,10 +23,6 @@
 
 - [#209](https://github.com/daytonaio/docs/pull/209): docs: modify installation section side menu (merged at: 2024-12-19T09:42:35Z)
 - [#210](https://github.com/daytonaio/docs/pull/210): feat: add search website index (merged at: 2024-12-19T09:42:50Z)
-
-### OSS Open Pull Requests
-
-- [#207](https://github.com/daytonaio/docs/pull/207): docs: refactor workspaces, projects, and targets (created at: 2024-12-17T00:25:33Z)
 
 ### Enterprise Merged Pull Requests
 
