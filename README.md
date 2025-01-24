@@ -16,6 +16,11 @@
 - [#205](https://github.com/daytonaio/docs/pull/205): docs: add workspace toolbox (merged at: 2025-01-14T07:44:16Z)
 - [#227](https://github.com/daytonaio/docs/pull/227): docs: refactor sdk code snippets & content (merged at: 2025-01-14T07:47:26Z)
 - [#207](https://github.com/daytonaio/docs/pull/207): docs: refactor workspaces, projects, and targets (merged at: 2025-01-24T09:51:40Z)
+- [#237](https://github.com/daytonaio/docs/pull/237): docs: fix sdk index redirect (merged at: 2025-01-24T15:22:37Z)
+
+### OSS Open Pull Requests
+
+- [#238](https://github.com/daytonaio/docs/pull/238): docs: fix sdk index (created at: 2025-01-24T21:56:16Z)
 
 ## 2024-12
 
