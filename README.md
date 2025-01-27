@@ -17,10 +17,14 @@
 - [#227](https://github.com/daytonaio/docs/pull/227): docs: refactor sdk code snippets & content (merged at: 2025-01-14T07:47:26Z)
 - [#207](https://github.com/daytonaio/docs/pull/207): docs: refactor workspaces, projects, and targets (merged at: 2025-01-24T09:51:40Z)
 - [#237](https://github.com/daytonaio/docs/pull/237): docs: fix sdk index redirect (merged at: 2025-01-24T15:22:37Z)
+- [#241](https://github.com/daytonaio/docs/pull/241): docs: update hyperlinks and spacings (merged at: 2025-01-27T08:09:23Z)
+- [#240](https://github.com/daytonaio/docs/pull/240): docs: update index items (merged at: 2025-01-27T08:09:43Z)
+- [#239](https://github.com/daytonaio/docs/pull/239): style: update docker icon (merged at: 2025-01-27T08:10:02Z)
+- [#238](https://github.com/daytonaio/docs/pull/238): docs: fix sdk index (merged at: 2025-01-27T08:10:25Z)
 
 ### OSS Open Pull Requests
 
-- [#238](https://github.com/daytonaio/docs/pull/238): docs: fix sdk index (created at: 2025-01-24T21:56:16Z)
+- [#242](https://github.com/daytonaio/docs/pull/242): docs: update getting started section (created at: 2025-01-24T23:00:38Z)
 
 ## 2024-12
 
