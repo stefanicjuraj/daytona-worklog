@@ -21,10 +21,7 @@
 - [#240](https://github.com/daytonaio/docs/pull/240): docs: update index items (merged at: 2025-01-27T08:09:43Z)
 - [#239](https://github.com/daytonaio/docs/pull/239): style: update docker icon (merged at: 2025-01-27T08:10:02Z)
 - [#238](https://github.com/daytonaio/docs/pull/238): docs: fix sdk index (merged at: 2025-01-27T08:10:25Z)
-
-### OSS Open Pull Requests
-
-- [#242](https://github.com/daytonaio/docs/pull/242): docs: update getting started section (created at: 2025-01-24T23:00:38Z)
+- [#242](https://github.com/daytonaio/docs/pull/242): docs: update getting started section (merged at: 2025-01-28T07:56:18Z)
 
 ## 2024-12
 
