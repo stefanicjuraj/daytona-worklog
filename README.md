@@ -1,5 +1,12 @@
 ![Pull Requests](pull-requests.png)
 
+## 2025-02
+
+
+### OSS Open Pull Requests
+
+- [#246](https://github.com/daytonaio/docs/pull/246): docs: add sdk to llms.txt & llms-full.txt files (created at: 2025-02-03T15:37:07Z)
+
 ## 2025-01
 
 ### OSS Merged Pull Requests
@@ -22,6 +29,12 @@
 - [#239](https://github.com/daytonaio/docs/pull/239): style: update docker icon (merged at: 2025-01-27T08:10:02Z)
 - [#238](https://github.com/daytonaio/docs/pull/238): docs: fix sdk index (merged at: 2025-01-27T08:10:25Z)
 - [#242](https://github.com/daytonaio/docs/pull/242): docs: update getting started section (merged at: 2025-01-28T07:56:18Z)
+- [#245](https://github.com/daytonaio/docs/pull/245): docs: updates & formatting improvements (merged at: 2025-01-30T07:51:27Z)
+
+### OSS Open Pull Requests
+
+- [#243](https://github.com/daytonaio/docs/pull/243): docs: add sdk documentation to search (created at: 2025-01-29T18:42:54Z)
+- [#244](https://github.com/daytonaio/docs/pull/244): docs: add windows uninstallation guide (created at: 2025-01-29T19:07:34Z)
 
 ## 2024-12
 
